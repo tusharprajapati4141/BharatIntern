@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            background-color: black;
+            background-image: url('pexels-pixabay-41949.jpg');
+            margin: 0;
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+        #weather {
+            height: 450px;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: aliceblue;    
+            position: absolute;
+            right: 50px;
+            top: 170px;
+            z-index: 1000;
+            opacity: 0.8;
+            border-radius:20px;
+            border: 5px solid rgb(120, 194, 255);
+            box-shadow: 5px 5px 10px black;
+        }   
+        .heading {
+            background: rgb(0,31,255);
+            background: linear-gradient(58deg, rgba(0,31,255,1) 0%, rgba(0,228,255,1) 52%, rgba(0,232,255,1) 100%);
+            color: transparent;
+            background-clip:text;
+            text-align: center;
+            padding-top: 5px;
+            font-size: 50px;
+            font-family:cursive;
+            z-index: 10;
+        }
+        .max-min {
+            width: 250px;
+            justify-content: space-between;
+            padding: 30px;
+            display: flex;
+        }
+        .info {
+            font-size: 1.5rem;
+            text-align: left;
+        }
+        .weather-image {
+            width: 120px;
+            margin-left: 50px;
+        }
+        #map { 
+            height: 100vh; 
+        }
+        .temp-desc {
+            margin-right: 20px;
+        }
+        #search-container {
+            position: absolute;
+            top: -20px;
+            left: 2px;
+            z-index: 1001;
+        }
+        #search {
+            height: 25px;
+            width: 290px;
+            padding: 10px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 100px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+        .info {
+            font-size: 22px;
+            text-align: center;
+        }
+        .search, .temperature, .wind {
+            height: 20px;
+            width: 20px;
+        }
+        .info {
+            justify-items: center;
+        }
+        #speed {
+            margin-right: 5px;
+        }
+        #search-container {
+    position: relative;
+    width: 300px;
+    height: 30px;
+    margin: 0 auto;
+}
+
+#search {
+    height: 50px;
+    width: 100%;
+    padding: 10px 40px 10px 20px; 
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 100px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    box-sizing: border-box; 
+}
+
+#search-container button {
+    position: absolute;
+    right: 20px;
+    top: 80%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+#search-container button img {
+    height: 20px;
+    width: 20px;
+}
+@media only screen and (max-width: 600px){
+    #map{
+        display: none;
+    }
+    #container{
+        transform: scale(0.8);
+        align-items: center;
+        justify-content: center;
+        margin-left: 110px;
+        
+    }
+    .heading{
+        transform: scale(0.9);
+        margin-left: -130px;
+    }
+    #weather{
+        margin-top: -20px;
+    }
+}
+
+@media screen and (min-width: 300px) and (max-width:500px){
+    #map{
+        display: none;
+    }
+    .heading{
+        transform: scale(0.9);
+        margin-left: -200px;
+    }
+    #container{
+        transform: scale(0.7);
+        align-items: center;
+        justify-content: center;
+        margin-left: 110px;
+         }
+         #weather{
+        margin-top: -50px;
+        left: -150px;
+        
+    }
+    
+}
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+</head>
+<body>
+    <div id="container">
+        <h1 class="heading">WEATHER APP</h1>   
+        <div id="map"></div>
+        <div id="weather">
+            <div id="search-container">
+                <input id="search" type="text" placeholder="Search for a place...">
+                <button><img src="c:\Users\9048i\OneDrive\Desktop\Bharat Intern\Weather Website\icons8-search-25.png"></button>
+            </div>
+            <h1 id="place">Bangalore</h1>
+            <div id="img-temp">
+                <img class="weather-image" src="cloudy-day-1.svg" alt="Weather Icon">
+                <div class="temp-desc info"><img src="thermometer.png" class="temperature">Temperature: 21 °C</div>
+            </div>
+            <div class="max-min">
+                <div id="max" class="info">Max: 22 °C</div>
+                <div id="min" class="info">Min: 20 °C</div>
+            </div>
+            <div id="speed" class="info"><img src="windy.png" class="wind"> Speed: 20 m/s</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <script>
+        const place = document.getElementById("place");
+        const image = document.querySelector(".weather-image");
+        const wind_speed = document.getElementById("speed");
+        const temperature = document.querySelector(".temp-desc");
+        const max = document.getElementById("max");
+        const min = document.getElementById("min");
+        const searchInput = document.getElementById("search");
+        const searchButton = document.querySelector("#search-container button");
+        let map, marker;
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async function (position) {
+                const long = position.coords.longitude;
+                const lat = position.coords.latitude;
+                const data = await getWeatherData(lat, long);
+                initializeMap(lat, long, data);
+            });
+        }
+
+        async function getWeatherData(lat, long) {
+            const api = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&units=metric&appid=1284186ccfb3e1eb21ae5516b77ce205`;
+            const response = await fetch(api);
+            const data = await response.json();
+            weatherDataHandler(data);
+            return data;
+        }
+
+        function weatherDataHandler(data) {
+            const { temp, temp_min, temp_max } = data.main;
+            const { speed } = data.wind;
+            const weather = data.weather[0].main.toLowerCase(); 
+            
+            place.innerHTML = data.name;
+            temperature.innerHTML = `<img src="thermometer.png" class="temperature">Temperature: ${temp} °C`;
+            max.innerHTML = `Max: ${temp_max} °C`;
+            min.innerHTML = `Min: ${temp_min} °C`;
+            wind_speed.innerHTML = `<img src="windy.png" class="wind"> Speed: ${speed} m/s`;
+
+            image.src = getWeatherIcon(weather);
+        }
+
+        function getWeatherIcon(weather) {
+            switch (weather) {
+                case 'clear':
+                    return 'cloudy-day-3.svg';
+                case 'clouds':
+                    return 'cloudy-day-2.svg';
+                case 'rain':
+                    return 'rainy-2.svg';
+                case 'snow':
+                    return 'snowy-2.svg';
+                case 'thunderstorm':
+                    return 'thunder.svg';
+                case 'mist':
+                case 'fog':
+                    return 'cloudy.svg';
+                default:
+                    return 'cloudy-day-1.svg';
+            }
+        }
+
+        function initializeMap(lat, long, data) {
+            map = L.map('map').setView([lat, long], 10);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { 
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+            marker = L.marker([lat, long]).addTo(map);
+            marker.bindPopup(data.name).openPopup();
+
+            map.on('click', async function (e) {
+                const clickedData = await getWeatherData(e.latlng.lat, e.latlng.lng);
+                marker.setLatLng([e.latlng.lat, e.latlng.lng]);
+                marker.bindPopup(clickedData.name).openPopup();
+            });
+        }
+
+        async function searchLocation() {
+            const location = searchInput.value.trim();
+            if (location) {
+                const geocodeApi = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=1284186ccfb3e1eb21ae5516b77ce205`;
+                const response = await fetch(geocodeApi);
+                const data = await response.json();
+                if (data.cod === 200) {
+                    const { lat, lon } = data.coord;
+                    const weatherData = await getWeatherData(lat, lon);
+                    map.setView([lat, lon], 10);
+                    marker.setLatLng([lat, lon]);
+                    marker.bindPopup(weatherData.name).openPopup();
+                } else {
+                    alert("Location not found");
+                }
+            } else {
+                alert("Please enter a location.");
+            }
+        }
+
+        
+        searchInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                searchLocation();
+            }
+        });
+
+        
+        searchButton.addEventListener("click", function () {
+            searchLocation();
+        });
+    </script>
+
+</body>
+</html>
